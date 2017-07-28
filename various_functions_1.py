@@ -84,18 +84,35 @@ def intereses_pata_fija(fechas, nocional, valor_tasa, tipo_tasa='LinAct/360'):
     return resultado
 
 
-def intereses_pata_flotante(fechas, nocional, curva_interpol, tipo_tasa='LinAct/360'):
+def intereses_pata_flotante(fecha_hoy, fechas, nocional, curva_interpol, tipo_tasa='LinAct/360'):
     resultado = []
     for x in zip(nocional, fechas):
-        dias1 = 1
-        dias2 = 2
-        df1 = 1
-        df2 = 2
-        valor_tasa = 3
+        dias1 = int((x[1][0] - fecha_hoy).days)
+        dias2 = int((x[1][1] - fecha_hoy).days)
+        df1 = curva_interpol(dias1)
+        df2 = curva_interpol(dias2)
+        valor_tasa = ((df1/df2)-1)*360/(dias2 - dias1)   #tasa r cuadern
         dias = int((x[1][1] - x[1][0]).days)
         interes = x[0] * valor_tasa * dias / 360.0
         resultado.append( (x[0], x[1][0], x[1][1], interes) )
     return resultado
+
+
+# VALOR A MINIMIZAR
+def valor_swap(tasa_fija, fecha_hoy, fechas, nocional, intereses_plata_flotante, curva_interpol):
+    int_pata_fija = intereses_pata_fija(fechas, nocional, tasa_fija)
+    pv_fija = valor_presente(fecha_hoy,int_pata_fija,curva_interpol)
+    vp_flotante = valor_presente(fecha_hoy,intereses_pata_flotante,curva_interpol)
+    return pv_fija - vp_flotante
+    #recibo pata fija y pago flotante
+
+def valor_swap_1(fecha_hoy, fechas, nocional, intereses_pata_flotante, curva_interpol):
+    def vswap(tasa_fija):
+        int_pata_fija = intereses_pata_fija(fechas, nocional, tasa_fija)
+        pv_fija = valor_presente(fecha_hoy, int_pata_fija, curva_interpol)
+        vp_flotante = valor_presente(fecha_hoy, intereses_pata_flotante, curva_interpol)
+        return pv_fija - vp_flotante
+    return vswap
 
 
 def curva(plazos, dfs):
@@ -107,7 +124,7 @@ def curva(plazos, dfs):
     return curva_interp
 
 
-def valor_presente_pata_fija(fecha_hoy, intereses, curva_interpol):
+def valor_presente(fecha_hoy, intereses, curva_interpol):
     resultado = 0.0
     for interes in intereses:
         plazo = int( (interes[2] - fecha_hoy).days )
