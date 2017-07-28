@@ -1,5 +1,5 @@
 from datetime import date
-import various_functions as vf
+import various_functions_1 as vf
 
 
 def main():
@@ -19,17 +19,15 @@ def main():
     for x in intereses:
         print(x)
 
-    plazos = [1.0, 30.0, 90.0, 365.0, 730.0, 1095.0, 1460.0, 1825.0, 2190.0]
-    dfs = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    plazos, dfs = vf.get_curva("./curva_camara_clp.csv")
+    # print(plazos)
+    # print(dfs)
 
     fecha_hoy = date(2017, 7, 17)
     curva_interp = vf.curva(plazos, dfs)
-    print( curva_interp(100.0) )
-    vp = valor_presente_pata_fija(fecha_hoy, intereses, curva_interp)
 
+    vp = vf.valor_presente_pata_fija(fecha_hoy, intereses, curva_interp)
+    print(vp)
 
-
-
-
-
-main()
+if __name__ == "__main__":
+    main()
