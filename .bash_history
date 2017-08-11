@@ -12,3 +12,6 @@ git push origin master
 git pull origin master
 git commit . -m "tareaaddmonths"
 git push origin master
+git add --all
+git commit . -m "VP SWAP post curva"
+git push origin master
